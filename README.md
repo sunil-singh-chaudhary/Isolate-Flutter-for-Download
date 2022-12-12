@@ -33,12 +33,10 @@
       list = message;
     });
   }
-
-  static isolateEntry(SendPort sendPort) async {
-    ReceivePort receiveport = ReceivePort();
-    sendPort.send(receiveport.sendPort);
-
-    await for (var msg in receiveport) {
+static isolateEntry(SendPort sendPort) async {
+     ReceivePort receiveport = ReceivePort();
+     sendPort.send(receiveport.sendPort);
+     await for (var msg in receiveport) {
       String newUrl = msg[0];
       print('newUrl-->' + newUrl);
       SendPort replyport = msg[1];
@@ -47,10 +45,7 @@
       replyport.send(json.decode(response.body));
     }
   }
-  
-
-
-//for multiple calls
+  //for multiple calls
   Future sendRecieve(SendPort send, message) {
     ReceivePort responsePort = ReceivePort();
     send.send([message, responsePort.sendPort]);
