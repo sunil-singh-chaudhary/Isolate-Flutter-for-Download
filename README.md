@@ -3,15 +3,17 @@
 # Download images video etc.
   Uisng Flutter ISolates and Future Async
  
-# ISolates used when we need to like parsing a hung chunk of data parallely so Here 
+# ISolates used when we need to like parsing a huge chunk of data parallely , so Here 
    comes the concept of isolates we can first download data Using Async
    then parse it Using Isolate.spawn()
+   
 # Add these api in pubspec.yml
   flutter_downloader: ^1.9.1
   path_provider: ^2.0.11
   permission_handler: ^10.2.0
   http: ^0.13.5
    
+   #init 
     @override
   void initState() {
       loadIsolate();
