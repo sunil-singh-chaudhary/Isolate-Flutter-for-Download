@@ -1,16 +1,54 @@
 # download_demo
 
-A new Flutter project.
+# Download images video etc.
+  Uisng Flutter ISolates and Future Async
+ 
+# ISolates used when we need to like parsing a hung chunk of data parallely so Here 
+   comes the concept of isolates we can first download data Using Async
+   then parse it Using Isolate.spawn()
+# Add these api in pubspec.yml
+  flutter_downloader: ^1.9.1
+  path_provider: ^2.0.11
+  permission_handler: ^10.2.0
+  http: ^0.13.5
+   
+    @override
+  void initState() {
+      loadIsolate();
+      super.initState();
+  }
+  
+  
+   Future loadIsolate() async {
+    ReceivePort receiveport = ReceivePort();
+    await Isolate.spawn(isolateEntry, receiveport.sendPort);
+    SendPort sendPort = await receiveport.first;
 
-## Getting Started
+    //multiple port each time
+    List message = await sendRecieve(
+        sendPort, "https://jsonplaceholder.typicode.com/comments");
+    setState(() {
+      list = message;
+    });
+  }
 
-This project is a starting point for a Flutter application.
+  static isolateEntry(SendPort sendPort) async {
+    ReceivePort receiveport = ReceivePort();
+    sendPort.send(receiveport.sendPort);
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+    await for (var msg in receiveport) {
+      String newUrl = msg[0];
+      print('newUrl-->' + newUrl);
+      SendPort replyport = msg[1];
+      var response = await http.get(Uri.parse(newUrl));
+      print('response-->' + response.statusCode.toString());
+      replyport.send(json.decode(response.body));
+    }
+  }
+  
+//for multiple calls
+  Future sendRecieve(SendPort send, message) {
+    ReceivePort responsePort = ReceivePort();
+    send.send([message, responsePort.sendPort]);
+    return responsePort.first;
+  }
