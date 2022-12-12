@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:http/http.dart' as http;
 
 void main() async {
@@ -52,13 +52,15 @@ class _HomePageState extends State<HomePage> {
   Future loadIsolate() async {
     ReceivePort receiveport = ReceivePort();
     await Isolate.spawn(isolateEntry, receiveport.sendPort);
-    SendPort sendPort = await receiveport.first;
+
+    SendPort sendPort = await receiveport.first; // first port first is information other is port info so we get reciveport.first
 
     //multiple port each time
     List message = await sendRecieve(
         sendPort, "https://jsonplaceholder.typicode.com/comments");
     setState(() {
       list = message;
+      print('LIST_EACH_TIME-->  ' + message.toString());
     });
   }
 
@@ -70,11 +72,13 @@ class _HomePageState extends State<HomePage> {
       String newUrl = msg[0];
       print('newUrl-->' + newUrl);
       SendPort replyport = msg[1];
+      print('replyport-->' + replyport.toString());
       var response = await http.get(Uri.parse(newUrl));
       print('response-->' + response.statusCode.toString());
       replyport.send(json.decode(response.body));
     }
   }
+
 //for multiple calls
 
   Future sendRecieve(SendPort send, message) {
@@ -98,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       return ListView.separated(
         itemCount: list.length,
         itemBuilder: (context, index) {
-          return Container(child: Text('Item-->: ${list[index]['body']}'));
+          return Container(child: Text('Item-->: ${list[index]['email']}'));
         },
         separatorBuilder: (BuildContext context, int index) {
           return Divider(
